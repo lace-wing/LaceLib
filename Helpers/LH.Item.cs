@@ -12,6 +12,7 @@ namespace LaceLib.Helpers
 {
     public static partial class LH
     {
+        #region TooltipLine
         public static bool HasLine(this List<TooltipLine> lines, string lineName)
         {
             for (int i = 0; i < lines.Count; i++)
@@ -119,5 +120,6 @@ namespace LaceLib.Helpers
             public static readonly string SpecialPrice = "SpecialPrice";
             public static readonly string Price = "Price";
         }
+        #endregion
     }
 }
