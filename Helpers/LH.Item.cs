@@ -59,6 +59,17 @@ namespace LaceLib.Helpers
             }
             return result;
         }
+        public static TooltipLine GetLine(this List<TooltipLine> lines, string lineName)
+        {
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (lineName == lines[i].Name)
+                {
+                    return lines[i];
+                }
+            }
+            return null;
+        }
         public static TooltipLine MakeTooltipLine(this string text, Mod mod, string name, Color? color = null, bool isModifier = false, bool isModifierBad = false)
         {
             TooltipLine line = new TooltipLine(mod, name, text);
