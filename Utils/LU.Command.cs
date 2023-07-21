@@ -11,6 +11,7 @@ using Humanizer.DateTimeHumanizeStrategy;
 using log4net.Appender;
 using System.IO;
 using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LaceLib.Utils
 {
@@ -29,15 +30,17 @@ namespace LaceLib.Utils
 				public readonly string Description;
 				public readonly char[] Abbreviation;
 				public readonly bool TakeParam;
-				public Option(string name, string description, bool takeParam, params char[] abv)
+				public readonly HashSet<int> RequiredOptions;
+				public Option(string name, string description, bool takeParam, HashSet<int> requiredOptions, params char[] abv)
 				{
 					Name = name;
 					Description = description;
 					Abbreviation = abv;
 					TakeParam = takeParam;
+					RequiredOptions = requiredOptions;
 				}
 				public bool IsValid => !string.IsNullOrEmpty(Name);
-			}
+            }
 
 			public class OptionNameDuplicateException : ArgumentException
 			{
@@ -116,28 +119,61 @@ namespace LaceLib.Utils
 			public virtual string ManPath => $"./man/{Name}.txt";
 			public virtual bool HasMan => File.Exists(ManPath);
 			public virtual string Man => File.ReadAllText(ManPath);
-			public virtual HashSet<Option> PossibleOptions { get; private set; }
-			public string[] InvalidOptions { get; private set; }
+			public abstract Option[] Options { get; set; }
 			public int ExitCode { get; private set; }
 			public object? Value { get; private set; }
-			private Dictionary<string, Dictionary<Option, string>> arguments = new Dictionary<string, Dictionary<Option, string>>();
+			private Dictionary<string, Dictionary<int, string>> arguments = new Dictionary<string, Dictionary<int, string>>();
 			public abstract void Run(ref object? pipe);
 			protected void Update(int exitCode, object? value)
 			{
 				ExitCode = exitCode;
 				Value = value;
 			}
-			protected bool AddOption(string arg, Option option, string param)
+			protected bool TryRegisterOption(Option option)
+			{
+				if (Options.Contains(option))
+				{
+					return false;
+				}
+				Options = Options.Append(option).ToArray();
+				return true;
+			}
+			protected Option GetOption(int index)
+			{
+				return Options[index];
+			}
+			protected bool TryGetOption(int index, out Option option)
+			{
+				option = new Option();
+				if (!index.Around(0, Options.Length - 1))
+				{
+					return false;
+				}
+				option = Options[index];
+				return true;
+			}
+			protected int GetOptionID(Option option)
+			{
+				for (int i = 0; i < Options.Length; i++)
+				{
+					if (Options[i].Name == option.Name)
+					{
+						return i;
+					}
+				}
+				return -1;
+			}
+			protected bool AddOption(string arg, int optionID, string param)
 			{
 				if (!arguments.ContainsKey(arg))
 				{
 					return false;
 				}
-				return arguments[arg].TryAdd(option, param);
+				return arguments[arg].TryAdd(optionID, param);
 			}
 			protected bool AddArg(string arg)
 			{
-				return arguments.TryAdd(arg, new Dictionary<Option, string>());
+				return arguments.TryAdd(arg, new Dictionary<int, string>());
 			}
 			protected Option[] MatchOptions(string text)
 			{
@@ -147,7 +183,7 @@ namespace LaceLib.Utils
 				}
 				List<Option> ops = new List<Option>();
 				bool isFullName = text.IsOptionFullName();
-                foreach (Option op in PossibleOptions)
+                foreach (Option op in Options)
                 {
                     if (isFullName && op.Name == text[2..])
                     {
@@ -186,7 +222,7 @@ namespace LaceLib.Utils
 					}
 					if (input[i].IsOption())
 					{
-						foreach (Option op in PossibleOptions)
+						foreach (Option op in Options)
 						{
 							if (!op.Matches(input[i]))
 							{
@@ -217,7 +253,7 @@ namespace LaceLib.Utils
 			{
 				return false;
 			}
-			return text[1] == OptionIndicator;
+			return text[1] == OptionAbbrevIndicactor;
 		}
 		public static bool IsOptionFullName(this string text)
 		{
