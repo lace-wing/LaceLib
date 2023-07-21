@@ -11,7 +11,7 @@ namespace LaceLib.Testing.Commands
     internal class TestCommand : LU.Command
     {
         public override string Name => "test";
-        public override LU.Option[] PossibleOptions => new LU.Option[] { new LU.Option("-period", false, "p", "d") };
+        public override HashSet<Option> PossibleOptions => base.PossibleOptions;
         public override void Run(ref object pipe)
         {
             Console.WriteLine("tested");
