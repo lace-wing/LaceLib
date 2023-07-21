@@ -1,4 +1,5 @@
-﻿using Steamworks;
+﻿
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,11 +81,13 @@ namespace LaceLib.Utils
         public struct Option
         {
             public readonly string Name;
+            public readonly string Description;
             public readonly string[] Abbreviation;
             public readonly bool TakeParam;
-            public Option(string name, bool takeParam, params string[] abv)
+            public Option(string name, string description, bool takeParam, params string[] abv)
             {
                 Name = name;
+                Description = description;
                 Abbreviation = abv;
                 TakeParam = takeParam;
             }
