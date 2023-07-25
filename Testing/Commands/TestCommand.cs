@@ -11,9 +11,16 @@ namespace LaceLib.Testing.Commands
     internal class TestCommand : LU.Command
     {
         public override string Name => "test";
+        public override Option[] Options { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public override void Run(ref object pipe)
         {
             Console.WriteLine("tested");
+        }
+        int a;
+        int A
+        {
+            get { return a; }
+            set { a = value; }
         }
     }
 }
