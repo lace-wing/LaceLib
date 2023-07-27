@@ -16,11 +16,5 @@ namespace LaceLib.Testing.Commands
         {
             Console.WriteLine("tested");
         }
-        int a;
-        int A
-        {
-            get { return a; }
-            set { a = value; }
-        }
     }
 }

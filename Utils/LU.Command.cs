@@ -1,5 +1,4 @@
-﻿
-using Steamworks;
+﻿using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,6 +114,7 @@ namespace LaceLib.Utils
 				}
 			}
 
+			private List; //TODO rewwrite the args thing using interface
 			public abstract string Name { get; }
 			public virtual string ManPath => $"./man/{Name}.txt";
 			public virtual bool HasMan => File.Exists(ManPath);
@@ -122,7 +122,6 @@ namespace LaceLib.Utils
 			public abstract Option[] Options { get; set; }
 			public int ExitCode { get; private set; }
 			public object? Value { get; private set; }
-			private Dictionary<string, Dictionary<int, string>> arguments = new Dictionary<string, Dictionary<int, string>>();
 			public abstract void Run(ref object? pipe);
 			protected void Update(int exitCode, object? value)
 			{
@@ -162,18 +161,6 @@ namespace LaceLib.Utils
 					}
 				}
 				return -1;
-			}
-			protected bool AddOption(string arg, int optionID, string param)
-			{
-				if (!arguments.ContainsKey(arg))
-				{
-					return false;
-				}
-				return arguments[arg].TryAdd(optionID, param);
-			}
-			protected bool AddArg(string arg)
-			{
-				return arguments.TryAdd(arg, new Dictionary<int, string>());
 			}
 			protected Option[] MatchOptions(string text)
 			{
